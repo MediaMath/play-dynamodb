@@ -5,14 +5,14 @@
  */
 package play.api.libs.dynamodb
 
-import com.amazonaws.services.dynamodbv2.model.GetItemResult
+import com.amazonaws.services.dynamodbv2.model.AttributeValue
 import scala.collection.JavaConversions._
 import java.nio.ByteBuffer
 
 
 object Item {
-  def parse(g: GetItemResult): DdbItem = {
-    val values = g.getItem.map { case (k, v) =>
+  def parse(m: Map[String, AttributeValue]): DdbItem = {
+    val values = m.map { case (k, v) =>
       k -> (v match {
         case v if v.getN != null  => DdbNumber(BigDecimal(v.getN))
         case v if v.getS != null  => DdbString(v.getS)

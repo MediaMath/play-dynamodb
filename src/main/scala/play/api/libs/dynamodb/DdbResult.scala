@@ -25,9 +25,45 @@ sealed trait DdbResult[+A] {
   }
 
   def filter(p: A => Boolean): DdbResult[A] = this.flatMap { a => if (p(a)) DdbSuccess(a) else DdbError(Seq()) }
+
+  def get: A
+
+  def getOrElse[AA >: A](t: => AA): AA = this match {
+    case DdbSuccess(a) => a
+    case DdbError(_) => t
+  }
+
+  def orElse[AA >: A](t: => DdbError): DdbResult[AA] = this match {
+    case s @ DdbSuccess(_) => s
+    case DdbError(_) => t
+  }
+
+  def asOpt = this match {
+    case DdbSuccess(v) => Some(v)
+    case DdbError(_) => None
+  }
+
+  def asEither = this match {
+    case DdbSuccess(v) => Right(v)
+    case DdbError(e) => Left(e)
+  }
+
+  def recover[AA >: A](errManager: PartialFunction[DdbError, AA]): DdbResult[AA] = this match {
+    case DdbSuccess(v) => DdbSuccess(v)
+    case e: DdbError => if (errManager isDefinedAt e) DdbSuccess(errManager(e)) else this
+  }
+
+  def recoverTotal[AA >: A](errManager: DdbError => AA): AA = this match {
+    case DdbSuccess(v) => v
+    case e: DdbError => errManager(e)
+  }
 }
+
 case class DdbSuccess[T](get: T) extends DdbResult[T]
-case class DdbError(errors: Seq[String]) extends DdbResult[Nothing]
+
+case class DdbError(errors: Seq[String]) extends DdbResult[Nothing] {
+  def get: Nothing = throw new NoSuchElementException("JsError.get")
+}
 
 object DdbResult {
   implicit val applicativeDdbResult: Applicative[DdbResult] = new Applicative[DdbResult] {
