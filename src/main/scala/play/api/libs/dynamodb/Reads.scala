@@ -5,7 +5,9 @@
  */
 package play.api.libs.dynamodb
 
-import scala._
+import scala.language.higherKinds
+
+import scala.collection.generic
 import play.api.libs.functional.{Functor, Alternative, Applicative}
 import org.joda.time.{DateTime, LocalDate}
 import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
@@ -28,7 +30,7 @@ object Reads {
 
   def at[A](key: DdbKey)(implicit reads: Reads[A]): Reads[A] = {
     Reads[A] {
-      case i: DdbItem => key.findWithin(i).flatMap(reads.reads(_))
+      case i: DdbItem => key.findWithin(i).flatMap(reads.reads)
       case _ => DdbError(Seq("error.expected.ddbitem"))
     }
   }
@@ -57,13 +59,9 @@ object Reads {
     def empty: Reads[Nothing] = new Reads[Nothing] { def reads(value: DdbValue) = DdbError(Seq()) }
   }
 
-
   implicit def functorReads(implicit a: Applicative[Reads]) = new Functor[Reads] {
     def fmap[A, B](reads: Reads[A], f: A => B): Reads[B] = a.map(reads, f)
   }
-
-
-
 
   implicit object IntReads extends Reads[Int] {
     def reads(item: DdbValue) = item match {
@@ -93,46 +91,40 @@ object Reads {
     }
   }
 
-  /*
-  implicit def traversableReads[F[_], A](implicit bf: generic.CanBuildFrom[F[_], A, F[A]], ra: Reads[A]) = new Reads[F[A]] {
-    def reads(json: JsValue) = json match {
-      case JsArray(ts) => {
-        
+  def fromDdbValue[T](value: DdbValue)(implicit fdv: Reads[T]): DdbResult[T] = fdv.reads(value)
+
+  implicit def traversableReads[F[_], A](implicit bf: generic.CanBuildFrom[F[_], A, F[A]], ra: Reads[A]): Reads[F[A]] = new Reads[F[A]] {
+    def reads(item: DdbValue) = item match {
+      case DdbSet(xs) =>
         var hasErrors = false
 
-        // first validates prod separates JsError / JsResult in an Seq[Either]
-        // the aim is to find all errors prod then to merge them all
-        val r = ts.zipWithIndex.map { case (elt, idx) => fromJson[A](elt)(ra) match {
-            case JsSuccess(v,_) => Right(v)
-            case JsError(e) => 
+        val either = xs.zipWithIndex.map { case(x,idx) =>
+          fromDdbValue[A](x)(ra) match {
+            case DdbSuccess(v) => Right(v)
+            case DdbError(e) =>
               hasErrors = true
-              Left( e.map{ case (p, valerr) => (JsPath(idx)) ++ p -> valerr } )
+              Left(e)
           }
         }
 
-        // if errors, tries to merge them into a single JsError
-        if(hasErrors) {
-          val fulle = r.filter( _.isLeft ).map( _.left.get )
-                                .foldLeft(List[(JsPath, Seq[ValidationError])]())( (acc, v) => (acc ++ v) )          
-          JsError(fulle)
-        }
-        // no error, rebuilds the map
-        else {
+        if (hasErrors) {
+          val allErrors = either.map(_.left.get).foldLeft(List[String]())((acc,v) => acc ++ v)
+          DdbError(allErrors)
+        } else {
           val builder = bf()
-          r.foreach( builder += _.right.get )
-          JsSuccess(builder.result())
+          either.foreach(builder += _.right.get)
+          DdbSuccess(builder.result())
         }
 
-      }
-      case _ => JsError(Seq(JsPath() -> Seq(ValidationError("validate.error.expected.jsarray"))))
+      case _ => DdbError(Seq("error.expected.ddbset"))
     }
   }
-  */
 
   def localDateReads(pattern: String, corrector: String => String = identity) = new Reads[LocalDate] {
     val df = if (pattern == "") ISODateTimeFormat.localDateParser else DateTimeFormat.forPattern(pattern)
 
-    private def parseDate(input: String): Option[LocalDate] = scala.util.control.Exception.allCatch[LocalDate] opt (LocalDate.parse(input, df))
+    private def parseDate(input: String): Option[LocalDate] =
+      scala.util.control.Exception.allCatch[LocalDate] opt LocalDate.parse(input, df)
 
     def reads(item: DdbValue) = item match {
       case DdbString(n) => parseDate(corrector(n)) match {
@@ -145,10 +137,12 @@ object Reads {
 
   implicit val DefaultLocalDateReads = localDateReads("")
 
+
   def dateTimeReads(pattern: String, corrector: String => String = identity) = new Reads[DateTime] {
     val df = if (pattern == "") ISODateTimeFormat.localDateParser else DateTimeFormat.forPattern(pattern)
 
-    private def parseDate(input: String): Option[DateTime] = scala.util.control.Exception.allCatch[DateTime] opt (DateTime.parse(input, df))
+    private def parseDate(input: String): Option[DateTime] =
+      scala.util.control.Exception.allCatch[DateTime] opt DateTime.parse(input, df)
 
     def reads(item: DdbValue) = item match {
       case DdbString(n) => parseDate(corrector(n)) match {

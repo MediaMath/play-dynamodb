@@ -62,7 +62,7 @@ sealed trait DdbResult[+A] {
 case class DdbSuccess[T](get: T) extends DdbResult[T]
 
 case class DdbError(errors: Seq[String]) extends DdbResult[Nothing] {
-  def get: Nothing = throw new NoSuchElementException("JsError.get")
+  def get: Nothing = throw new NoSuchElementException("DdbError.get")
 }
 
 object DdbResult {
