@@ -77,6 +77,13 @@ object Reads {
     }
   }
 
+  implicit object BigDecimalReads extends Reads[BigDecimal] {
+    def reads(item: DdbValue) = item match {
+      case DdbNumber(n) => DdbSuccess(n.underlying())
+      case _ => DdbError(Seq("error.expected.ddbnumber"))
+    }
+  }
+
   implicit object ByteArrayReads extends Reads[Array[Byte]] {
     def reads(item: DdbValue) = item match {
       case DdbBinary(n) => DdbSuccess(n)
@@ -98,7 +105,7 @@ object Reads {
       case DdbSet(xs) =>
         var hasErrors = false
 
-        val either = xs.zipWithIndex.map { case(x,idx) =>
+        val either = xs.map{x =>
           fromDdbValue[A](x)(ra) match {
             case DdbSuccess(v) => Right(v)
             case DdbError(e) =>

@@ -6,10 +6,10 @@
 package play.api.libs.dynamodb
 
 
-case class DdbKey(key: String) {
+case class DdbKey(name: String) {
   def read[T](implicit r: Reads[T]): Reads[T] = Reads.at[T](this)(r)
   def findWithin(item: DdbItem): DdbResult[DdbValue] = {
-    item.value.get(key) match {
+    item.value.get(name) match {
       case Some(value) => DdbSuccess(value)
       case None => DdbError(Seq("error.path.missing"))
     }
