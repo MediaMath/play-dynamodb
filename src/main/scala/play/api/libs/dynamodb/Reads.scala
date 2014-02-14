@@ -77,6 +77,20 @@ object Reads {
     }
   }
 
+  implicit object FloatReads extends Reads[Float] {
+    def reads(item: DdbValue) = item match {
+      case DdbNumber(n) => DdbSuccess(n.toFloat)
+      case _ => DdbError(Seq("error.expected.ddbnumber"))
+    }
+  }
+
+  implicit object DoubleReads extends Reads[Double] {
+    def reads(item: DdbValue) = item match {
+      case DdbNumber(n) => DdbSuccess(n.toDouble)
+      case _ => DdbError(Seq("error.expected.ddbnumber"))
+    }
+  }
+
   implicit object BigDecimalReads extends Reads[BigDecimal] {
     def reads(item: DdbValue) = item match {
       case DdbNumber(n) => DdbSuccess(n.underlying())
