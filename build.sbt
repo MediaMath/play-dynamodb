@@ -1,6 +1,6 @@
 name := "play-dynamodb"
 
-version := "0.3-SNAPSHOT"
+version := "0.4.0-SNAPSHOT"
 
 organization := "com.mediamath.play"
 
@@ -11,11 +11,11 @@ scalacOptions ++= Seq("-encoding", "utf-8", "-deprecation", "-unchecked", "-feat
 resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
 
 
-libraryDependencies +=  "com.typesafe.play" %% "play-json" % "2.2.1"
+libraryDependencies +=  "com.typesafe.play" %% "play-json"    % "2.2.1"
 
-libraryDependencies += "com.amazonaws" % "aws-java-sdk" % "1.6.9.1"
+libraryDependencies += "com.amazonaws"       % "aws-java-sdk" % "1.6.9.1"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+libraryDependencies += "org.specs2"         %% "specs2"       % "2.3.10"   % "test"
 
 
 s3credentials := Some((sys.env("AWS_ACCESS_KEY_ID"), sys.env("AWS_SECRET_ACCESS_KEY")))
