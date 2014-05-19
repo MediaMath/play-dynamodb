@@ -22,10 +22,17 @@ resolvers += Resolver.sonatypeRepo("releases")
 libraryDependencies += "com.mediamath.play" %% "play-dynamodb" % "0.4.1"
 ```
 
+Features
+--------
+
+- Easily convert data stored in DynamoDB into case classes
+- Supports primitive types, iterables, byte arrays and Joda-Time classes
+
+
 Usage
 -----
 
-First, make sure you understand the [[JSON combinatosrs API]](http://www.playframework.com/documentation/2.2.x/ScalaJsonCombinators).
+First, make sure you understand the [JSON combinatosrs API](http://www.playframework.com/documentation/2.2.x/ScalaJsonCombinators).
 Then you just need to create an implicit reads for your case class and call 'validate'.  You will get back either
 a `DdbSuccess` or a `DdbError` depending on whether or not the validation/parsing succeeded.
 
