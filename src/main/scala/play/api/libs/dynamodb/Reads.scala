@@ -124,6 +124,13 @@ object Reads {
     }
   }
 
+  implicit def OptionReads[T](implicit fmt: Reads[T]): Reads[Option[T]] = new Reads[Option[T]] {
+    def reads(json: DdbValue) = fmt.reads(json) match {
+      case DdbSuccess(v) ⇒ DdbSuccess(Some(v))
+      case _             ⇒ DdbSuccess(None)
+    }
+  }
+
   def fromDdbValue[T](value: DdbValue)(implicit fdv: Reads[T]): DdbResult[T] = fdv.reads(value)
 
   implicit def traversableReads[F[_], A](implicit bf: generic.CanBuildFrom[F[_], A, F[A]], ra: Reads[A]): Reads[F[A]] = new Reads[F[A]] {
@@ -172,7 +179,7 @@ object Reads {
 
 
   def dateTimeReads(pattern: String, corrector: String => String = identity) = new Reads[DateTime] {
-    val df = if (pattern == "") ISODateTimeFormat.localDateParser else DateTimeFormat.forPattern(pattern)
+    val df = if (pattern == "") ISODateTimeFormat.dateTimeNoMillis() else DateTimeFormat.forPattern(pattern)
 
     private def parseDate(input: String): Option[DateTime] =
       scala.util.control.Exception.allCatch[DateTime] opt DateTime.parse(input, df)

@@ -1,0 +1,17 @@
+Play DynamoDB is an API for parsing/validating records returned from Amazon's DynamoDB service.
+Copyright 2014 MediaMath
+
+3rd Party Dependencies:
+
+  Play JSON
+  Apache Public License 2.0
+  http://www.playframework.com/
+
+  AWS Java SDK
+  Apache Public License 2.0
+  https://aws.amazon.com/sdkforjava/
+
+  Joda-Time
+  Apache Public License 2.0
+  http://www.joda.org/joda-time/
+

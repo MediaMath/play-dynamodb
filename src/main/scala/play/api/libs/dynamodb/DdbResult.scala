@@ -21,6 +21,9 @@ package play.api.libs.dynamodb
 import play.api.libs.functional.{Alternative, Applicative}
 
 sealed trait DdbResult[+A] {
+  def isSuccess: Boolean = this.isInstanceOf[DdbSuccess[_]]
+  def isError: Boolean = this.isInstanceOf[DdbError]
+
   def map[X](f: A => X): DdbResult[X] = this match {
     case DdbSuccess(v) => DdbSuccess(f(v))
     case e: DdbError => e
