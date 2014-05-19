@@ -74,5 +74,22 @@ class ReadsSpec extends Specification {
       val reads = DdbKey("number").read[BigDecimal]
       reads.reads(item) should be_==(DdbError(List("error.expected.ddbnumber")))
     }
+
+    "work with Double" in {
+      val double:Double = 1.2D
+      val attr = new AttributeValue().withN(double.toString)
+      val item = Item.parse(Map("number" -> attr))
+
+      val reads = DdbKey("number").read[Double]
+      reads.reads(item) should be_==(DdbSuccess(double))
+    }
+
+    "invalidate String as Double" in {
+      val attr = new AttributeValue().withS("string")
+      val item = Item.parse(Map("number" -> attr))
+
+      val reads = DdbKey("number").read[Double]
+      reads.reads(item) should be_==(DdbError(List("error.expected.ddbnumber")))
+    }
   }
 }

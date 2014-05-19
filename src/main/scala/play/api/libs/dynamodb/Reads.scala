@@ -126,8 +126,8 @@ object Reads {
 
   implicit def OptionReads[T](implicit fmt: Reads[T]): Reads[Option[T]] = new Reads[Option[T]] {
     def reads(json: DdbValue) = fmt.reads(json) match {
-      case DdbSuccess(v) ⇒ DdbSuccess(Some(v))
-      case _             ⇒ DdbSuccess(None)
+      case DdbSuccess(v) => DdbSuccess(Some(v))
+      case _ => DdbSuccess(None)
     }
   }
 
@@ -171,7 +171,7 @@ object Reads {
         case Some(d) => DdbSuccess(d)
         case None => DdbError(Seq("error.expected.localdate.format", pattern))
       }
-      case _ => DdbError(Seq("error.expected.ddbstring"))
+      case _ => DdbError(Seq("error.expected.ddbdate_string"))
     }
   }
 
@@ -189,7 +189,7 @@ object Reads {
         case Some(d) => DdbSuccess(d)
         case None => DdbError(Seq("error.expected.datetime.format", pattern))
       }
-      case _ => DdbError(Seq("error.expected.ddbstring"))
+      case _ => DdbError(Seq("error.expected.ddbdate_string"))
     }
   }
 

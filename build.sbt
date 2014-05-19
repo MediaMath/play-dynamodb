@@ -13,8 +13,8 @@ scalacOptions ++= Seq("-encoding", "utf-8", "-deprecation", "-unchecked", "-feat
 resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
 
 
-libraryDependencies += "com.typesafe.play" %% "play-json"    % "2.2.1"
+libraryDependencies += "com.typesafe.play" %% "play-json" % "2.2.1"
 
-libraryDependencies += "com.amazonaws"       % "aws-java-sdk" % "1.6.9.1"
+libraryDependencies += "com.amazonaws" % "aws-java-sdk" % "1.6.9.1"
 
-libraryDependencies += "org.specs2"         %% "specs2"       % "2.3.10"   % "test"
+libraryDependencies += "org.specs2" %% "specs2" % "2.3.10" % "test"
