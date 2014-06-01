@@ -1,7 +1,5 @@
 name         := "play-dynamodb"
 
-version      := "0.4.0-SNAPSHOT"
-
 organization := "com.mediamath.play"
 
 scalaVersion := "2.10.3"
