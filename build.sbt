@@ -16,3 +16,6 @@ libraryDependencies += "com.typesafe.play" %% "play-json"    % "2.2.1"
 libraryDependencies += "com.amazonaws"       % "aws-java-sdk" % "1.6.9.1"
 
 libraryDependencies += "org.specs2"         %% "specs2"       % "2.3.10"   % "test"
+
+
+releaseSettings
