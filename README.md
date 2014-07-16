@@ -6,7 +6,7 @@ Play-DynamoDB is an API for validating DynamoDB records and converting them into
 by the [JSON combinators](http://www.playframework.com/documentation/2.2.x/ScalaJsonCombinators) available in the core Play distribution.
 
 
-Current version: `0.4.0-SNAPSHOT`
+Current version: `0.4.0`
 
 
 Getting Play-DynamoDB
