@@ -2,7 +2,7 @@ name         := "play-dynamodb"
 
 organization := "com.mediamath"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.10.4"
 
 
 scalacOptions ++= Seq("-encoding", "utf-8", "-deprecation", "-unchecked", "-feature")
